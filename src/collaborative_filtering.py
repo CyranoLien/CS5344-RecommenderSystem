@@ -4,8 +4,8 @@ from pyspark.ml.recommendation import ALS
 
 INP_PATH = '../bin/c&p_data_all.json'
 OUT_PATH = '../bin/c&p_data_5000.json'
-# the minimum number of items that bought by one customer
-MIN_NUM = 5
+# the number of recommended products
+K = 5
 
 
 def extract_top_N(n):
@@ -44,7 +44,7 @@ def select_min_5(df):
     df.createOrReplaceTempView('table0')
 
     counts = df.groupby('pid').count()
-    counts = counts.filter('count > %d' % MIN_NUM)
+    counts = counts.filter('count > %d' % 5)
     counts.show()
     counts.createOrReplaceTempView('valid_pid')
 
