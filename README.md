@@ -37,10 +37,10 @@ The dataset is the '5core' data for 'Apps_for_Android'.
 Note that, the testing set here must be sampled from those transactions where score=5.  
 
 That is, in the original dataset, a customer may score a product very low but still he/she bought it, so we have to re-think how to define 'conversion' ourselves.
-A reasonable method is, if a customer is predicted to highly score some products we recommend those products.  
+A reasonable method is, if a customer is predicted to highly score some products, we recommend those products.  
 
 Thus, we have to sample those transactions whose score is as high as possible (5 actually), so that we could regard the customer did buy the product.
-Now the task is changed to find whether 'a customer would highly score one indeed from the products we provide'.
+Now the task is changed to find 'whether a customer would indeed highly score one product from the products we provide'.
 
 1. Prepare the data of 5-core so that all users and items have at least 5 reviews.
 
