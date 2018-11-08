@@ -3,20 +3,36 @@
 Data source:
 http://jmcauley.ucsd.edu/data/amazon/links.html  
  
-Please download '5-core' and 'meta' for 'Apps_for_Android'.  
-
-The former is the subset of the data in which all users and items have at least 5 reviews.  
+Please download 'meta' and '5-core' for 'Apps_for_Android'.  
  
-The latter contains lists of 'also_bought' and 'also_viewed' for each specific product. 
+The former contains lists of 'also_bought' and 'also_viewed' for each specific product.  
+
+The latter is the subset of the data in which all users and items have at least 5 reviews.  
 
 To evaluate the methods, we compare the Conversion Rate (CR) of the recommendations. 
 A user has obtained at least one good recommendation if s/he purchased at least one product from the recommended list of top K items.
  
 
-## Frequent Item Sets
+## Frequent Pattern Mining
+The method used here is FPGrowth.  
+
+The dataset is the 'meta' data for 'Apps_for_Android'.  
+
+1. Preprocess and divide dataset into train_temp and test_temp;
+
+2. For training set, we merge column 'item' and column 'also_bought' to 'itemset' as one input transaction.
+For test set, we rename column 'item' to 'itemset' which would be used for prediction, and rename 'also_bought' as 'ground_truth'.
+
+3. Train the model with designated minSupport and minConfidence.
+
+4. Do the prediction, and calculate conversion rate by compare column 'ground_truth' and 'prediction' using UDFs.
+
+
 
 ## Collaborative Filtering
-The method used here is item-based CF. 
+The method used here is item-based CF.  
+
+The dataset is the '5core' data for 'Apps_for_Android'.  
  
 Note that, the testing set here must be sampled from those transactions where score=5.  
 
