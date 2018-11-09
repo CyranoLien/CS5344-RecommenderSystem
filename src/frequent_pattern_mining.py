@@ -32,7 +32,7 @@ def concat(type):
 
 
 def data_process(df):
-    train_temp, test_temp = df.randomSplit([0.8, 0.2])
+    train_temp, test_temp = df.randomSplit([0.85, 0.15])
 
     # for training set, concatenate 'item' with 'also_bought'
     concat_string_arrays = concat(StringType())
@@ -89,6 +89,8 @@ def fp_growth(df):
     total_v = res.agg(F.sum('conversion')).collect()[0][0]
     print("The number of correct recommendation is: %d" % total_v)
 
+    print(df.count())
+
 
 if __name__ == '__main__':
     spark = SparkSession.builder.getOrCreate()
@@ -96,5 +98,3 @@ if __name__ == '__main__':
 
     df = spark.read.json(INP_PATH)
     fp_growth(df)
-
-

@@ -1,11 +1,13 @@
 from pyspark.sql import SparkSession, Row
 from pyspark.ml.feature import StringIndexer
 from pyspark.ml.recommendation import ALS
+import pyspark.sql.functions as F
+from pyspark.sql.types import *
 
 INP_PATH = '../bin/c&p_data_all.json'
 OUT_PATH = '../bin/c&p_data_5000.json'
 # the number of recommended products
-K = 5
+K = 10
 
 
 def extract_top_N(n):
@@ -35,8 +37,8 @@ def numerical_converter(df):
 
     # after the conversion
     res = indexed.select(indexed.cid, indexed.pid, indexed.score)
-    print('After the conversion:')
-    res.show()
+    # print('After the conversion:')
+    # res.show()
     return res
 
 
@@ -54,18 +56,47 @@ def select_min_5(df):
 
 
 def collaborative_filter(df):
-    training, test = df.randomSplit([0.8, 0.2])
+    # TODO: sample testset from those whose scores are high
+    # _df = df.orderBy(F.rand()).orderBy('score', ascending=False)
+    # print(_df.count())
+    # test = _df.limit(50000).orderBy('pid')
+    # print(test.count())
+    # training = _df.subtract(test).orderBy('pid')
+    # print(training.count())
 
-    print("++++++++++++++++%d" % training.select('cid').distinct().count())
+    training, test = df.randomSplit([0.9, 0.1])
 
+    # TODO: train the model
     alsExplicit = ALS(maxIter=5, regParam=0.01, userCol="cid", itemCol="pid", ratingCol="score")
     modelExplicit = alsExplicit.fit(training)
+
+    # TODO: test the model
+    # pre-process the test data
+    res_truth = test.groupby('cid').agg(F.collect_list('pid').alias('ground_truth')).orderBy('cid')
+
+    # TODO: generate the prediction for test data
+    user = test.select('cid').distinct()
+    res_pre = modelExplicit.recommendForUserSubset(user, K).orderBy('cid')
+    # define an UDF to transform the prediction output
+    my_udf = lambda x: [i[0] for i in x]
+    extract = F.udf(my_udf, ArrayType(IntegerType()))
+    res_pre = res_pre.withColumn('prediction', extract(res_pre.recommendations))
+    res = res_truth.join(res_pre, res_truth.cid == res_pre.cid).select(res_truth["*"], res_pre["prediction"])
+    # calculate the conversion rate
+    conversion = F.udf(lambda x, y: 0 if len(set(x) & set(y)) == 0 else 1, IntegerType())
+    res = res.withColumn('conversion', conversion('ground_truth', 'prediction'))
+
+    res.show()
+    print("The total number of transaction in testset is: %d     K = %d" % (test.count(), K))
+    print("The number of total users in the testset is: %d" % res.count())
+    total_v = res.agg(F.sum('conversion')).collect()[0][0]
+    print("The number of converted users is: %d" % total_v)
+
+
+    '''
     predictionsExplicit = modelExplicit.transform(test)
     predictionsExplicit.orderBy('cid').show()
-
-    userRecs = modelExplicit.recommendForAllUsers(10)
-    userRecs.show()
-
+    '''
 
 
 if __name__ == '__main__':
@@ -74,11 +105,8 @@ if __name__ == '__main__':
 
     # extract_top_N(5000)
 
-    df = spark.read.json(OUT_PATH)
+    df = spark.read.json(INP_PATH)
     df = numerical_converter(df)
-
-
-
     collaborative_filter(df)
 
 

@@ -7,6 +7,7 @@ OUT_PATH = '../bin/c&p_data_all.json'
 
 key_map = {'reviewerID': 'customerID', 'asin': 'productID', 'overall': 'score'}
 
+
 with open(INP_PATH, 'r') as f1:
     with open(OUT_PATH, 'w') as f2:
         for l in tqdm(f1.readlines()):

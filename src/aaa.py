@@ -1,4 +1,5 @@
 def temp():
+
     from pyspark.sql import SparkSession
     from pyspark.ml.fpm import FPGrowth
     spark = SparkSession.builder.getOrCreate()
@@ -22,14 +23,23 @@ def temp():
     # consequents as prediction
     model.transform(df).show()
 
-a = [1,2,3,4]
-b =[4]
+
+def lll():
+    a = [1, 2, 3, 4]
+    b = [4]
+
+    x = set(a)
+    y = set(b)
+
+    def s(x, y):
+        return 0 if len(x & y) is 0 else 1
+
+    print(s(x, y))
 
 
-x = set(a)
-y = set(b)
+a = [[['p1',2], ['p2',3], ['p3',3]], [['p1',2], ['p2',3], ['p3',3]]]
 
-def s(x,y):
-    return 0 if len(x&y) is 0 else 1
+b = list(map(lambda x: [i[0] for i in x], a))
 
-print(s(x,y))
+print(b)
+
