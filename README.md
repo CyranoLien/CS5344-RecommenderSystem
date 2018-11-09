@@ -13,6 +13,14 @@ To evaluate the methods, we compare the Conversion Rate (CR) of the recommendati
 A user has obtained at least one good recommendation if s/he purchased at least one product from the recommended list of top K items.
  
 
+## Setup
+1. Download data from web link first.
+
+2. Run 'meta_extractor.py' and 'review_extractor.py' to preprocess data respectively.
+
+3. Run 'frequent_pattern_mining.py' and 'collaborative_filtering.py' directly.
+
+
 ## Frequent Pattern Mining
 The method used here is FPGrowth.  
 
@@ -46,14 +54,12 @@ Now the task is changed to find 'whether a customer would indeed highly score on
 
 2. Convert the data from string to numerical for the sake of using Spark MLlib.
 
-3. Split the dataset into training and testing. Note that, for testing data, we only pick those highly-scored transactions. 
+3. Split the dataset into training and testing. Note that, for testing data, we may only pick those highly-scored transactions. 
 
-4. Transform the testset. Make a list with the size being M*N. (M refers to the numbers of customers in the testset, and N for products).
+4. Transform and aggregate the testset by cid (customer id)
 
 5. Train the model using explicit method.
 
 6. Predict for testset, and for each customer pick K items. Compare whether the highly-scored-indeed item is in the list.
 
 7. May aslo simply split a testset, predict the socores and compare RMSE.
-
-
